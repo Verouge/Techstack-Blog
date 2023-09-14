@@ -5,17 +5,9 @@
             Post</a>
     </div>
 
-    {{#each posts as |post|}}
+    {{#each posts}}
     <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <h3 class="text-xl font-bold mb-2">{{post.title}}</h3>
-        <p class="text-gray-700 text-base mb-4">{{post.contents}}</p>
-
-        <div class="flex justify-between">
-            <a href="/posts/edit/{{post.id}}"
-                class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-4 rounded">Edit</a>
-            <a href="/posts/delete/{{post.id}}"
-                class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-4 rounded">Delete</a>
-        </div>
+        <a href="/posts/edit/{{id}}" class="text-xl font-bold mb-2">{{title}}</a>
     </div>
     {{else}}
     <p class="text-gray-700">You haven't created any posts yet. Start by clicking "Create New Post" above.</p>

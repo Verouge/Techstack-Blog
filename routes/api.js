@@ -33,51 +33,63 @@ router.get("/posts/:id", async (req, res) => {
   }
 });
 
-// Create a new post
-router.post("/posts", async (req, res) => {
+router.post("/posts", loggedIn, async (req, res) => {
   try {
-    const newPost = await Post.create(req.body);
+    // Add user_id to the post object before creating it
+    const postData = {
+      ...req.body,
+      user_id: req.session.user_id,
+    };
+
+    const newPost = await Post.create(postData);
     res.status(201).json(newPost);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
-// Update a post by ID
-router.put("/posts/:id", async (req, res) => {
+// Edit post
+router.put("/posts/edit/:id", loggedIn, async (req, res) => {
   try {
-    const updatedPost = await Post.update(req.body, {
-      where: {
-        id: req.params.id,
-      },
-    });
+    const post = await Post.findByPk(req.params.id);
 
-    if (!updatedPost) {
-      res.status(404).json({ message: "No post found with that id!" });
-      return;
+    if (post) {
+      await post.update({
+        title: req.body.title,
+        content: req.body.content,
+      });
+
+      // After updating the post, redirect to the dashboard
+      res.redirect("/dashboard");
+    } else {
+      res.status(404).json({ message: "Post not found" });
     }
-
-    res.json(updatedPost);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
-// Delete a post by ID
-router.delete("/posts/:id", async (req, res) => {
+// Delete post
+router.delete("/posts/:id", loggedIn, async (req, res) => {
   try {
-    const deletedPost = await Post.destroy({
-      where: {
-        id: req.params.id,
-      },
-    });
+    const postData = await Post.findByPk(req.params.id);
 
-    if (!deletedPost) {
+    if (!postData) {
       res.status(404).json({ message: "No post found with that id!" });
       return;
     }
 
-    res.status(200).json({ message: "Post deleted successfully." });
+    // Check if the post's user_id matches the logged-in user's id
+    if (postData.user_id !== req.session.user_id) {
+      res
+        .status(403)
+        .json({ message: "You are not authorized to delete this post." });
+      return;
+    }
+
+    await postData.destroy();
+
+    res.redirect("/dashboard"); // redirect to dashboard after deletion
   } catch (err) {
     res.status(500).json(err);
   }

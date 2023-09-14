@@ -7,7 +7,12 @@ const loggedIn = require("../utils/auth");
 router.get("/", async (req, res) => {
   try {
     const postData = await Post.findAll({
-      include: [User],
+      include: [
+        {
+          model: User,
+          attributes: ["username"],
+        },
+      ],
     });
 
     const posts = postData.map((post) => post.get({ plain: true }));
@@ -21,17 +26,43 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Render a single post by its ID
-router.get("/post/:id", async (req, res) => {
+// Render a single dashboard post by its ID for detailed view
+router.get("/dashboard/post/:id", loggedIn, async (req, res) => {
   try {
     const postData = await Post.findByPk(req.params.id, {
-      include: [
-        User,
-        {
-          model: Comment,
-          include: [User],
-        },
-      ],
+      where: {
+        user_id: req.session.user_id,
+      },
+      include: [User],
+    });
+
+    if (!postData) {
+      res.status(404).json({
+        message: "No post found with that id or it doesn't belong to the user!",
+      });
+      return;
+    }
+
+    const post = postData.get({ plain: true });
+
+    res.render("postdetails", { post });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Render the new post page
+router.get("/posts/new", loggedIn, (req, res) => {
+  res.render("newpost", {
+    loggedIn: req.session.loggedIn,
+  });
+});
+
+// Render the edit page for a specific post
+router.get("/posts/edit/:id", loggedIn, async (req, res) => {
+  try {
+    const postData = await Post.findByPk(req.params.id, {
+      include: [User],
     });
 
     if (!postData) {
@@ -41,9 +72,17 @@ router.get("/post/:id", async (req, res) => {
 
     const post = postData.get({ plain: true });
 
-    res.render("post", {
+    // Check if the post's user_id matches the logged-in user's id
+    if (post.user_id !== req.session.user_id) {
+      res
+        .status(403)
+        .json({ message: "You are not authorized to edit this post." });
+      return;
+    }
+
+    res.render("editpost", {
       post,
-      loggedIn: req.session.loggedIn, // Added loggedIn state
+      loggedIn: req.session.loggedIn,
     });
   } catch (err) {
     res.status(500).json(err);
