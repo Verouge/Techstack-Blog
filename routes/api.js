@@ -42,7 +42,9 @@ router.post("/posts", loggedIn, async (req, res) => {
     };
 
     const newPost = await Post.create(postData);
-    res.status(201).json(newPost);
+
+    // Redirect to the dashboard after creating the post
+    res.redirect("/dashboard");
   } catch (err) {
     res.status(500).json(err);
   }
