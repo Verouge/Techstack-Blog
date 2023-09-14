@@ -1,3 +1,7 @@
+const formatDate = (date) => {
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+};
+
 module.exports = {
   json: function (context) {
     return JSON.stringify(context);
@@ -9,4 +13,5 @@ module.exports = {
     }
     return accum;
   },
+  formatDate: formatDate,
 };

@@ -7,7 +7,8 @@
 
     {{#each posts}}
     <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <a href="/posts/edit/{{id}}" class="text-xl font-bold mb-2">{{title}}</a>
+        <a href="/dashboard/post/{{id}}" class="text-xl font-bold mb-2">{{title}}</a>
+        <div class="text-sm text-gray-500">Posted on: {{formatDate createdAt}}</div>
     </div>
     {{else}}
     <p class="text-gray-700">You haven't created any posts yet. Start by clicking "Create New Post" above.</p>
