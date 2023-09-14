@@ -12,7 +12,10 @@ router.get("/", async (req, res) => {
 
     const posts = postData.map((post) => post.get({ plain: true }));
 
-    res.render("home", { posts });
+    res.render("home", {
+      posts,
+      loggedIn: req.session.loggedIn, // Added loggedIn state
+    });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -38,7 +41,10 @@ router.get("/post/:id", async (req, res) => {
 
     const post = postData.get({ plain: true });
 
-    res.render("post", { post });
+    res.render("post", {
+      post,
+      loggedIn: req.session.loggedIn, // Added loggedIn state
+    });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -47,6 +53,13 @@ router.get("/post/:id", async (req, res) => {
 // Render the dashboard with user's posts
 router.get("/dashboard", loggedIn, async (req, res) => {
   try {
+    console.log("User ID from session:", req.session.user_id); // Logging the user ID from session
+
+    // If the user_id is undefined, throw an error to catch it in the catch block
+    if (!req.session.user_id) {
+      throw new Error("Session user_id is undefined!");
+    }
+
     // Retrieve all the posts for the logged-in user
     const userPosts = await Post.findAll({
       where: {
@@ -77,7 +90,7 @@ router.get("/dashboard", loggedIn, async (req, res) => {
       loggedIn: req.session.loggedIn,
     });
   } catch (err) {
-    console.log(err);
+    console.error(err); // Logging the error to the console
     res.status(500).json(err);
   }
 });

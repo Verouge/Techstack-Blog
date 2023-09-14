@@ -102,7 +102,9 @@ router.post("/signup", async (req, res) => {
     const userData = await User.create(req.body);
     req.session.loggedIn = true;
     req.session.user_id = userData.id;
-    res.status(201).json(userData);
+
+    // Redirect user to the dashboard after successful signup
+    res.redirect("/dashboard");
   } catch (err) {
     res.status(500).json(err);
   }
@@ -110,31 +112,45 @@ router.post("/signup", async (req, res) => {
 
 // Login
 router.post("/login", async (req, res) => {
+  console.log("Login route hit");
   try {
     const userData = await User.findOne({
       where: { username: req.body.username },
     });
-    if (!userData || !userData.validatePassword(req.body.password)) {
+
+    if (!userData || !userData.checkPassword(req.body.password)) {
       res.status(401).json({ message: "Incorrect username or password" });
       return;
     }
+
     req.session.loggedIn = true;
     req.session.user_id = userData.id;
-    res.json({ user: userData, message: "You are now logged in!" });
+
+    console.log("Logged In User ID:", req.session.user_id); // Logging the user ID
+
+    // Save the session and then redirect
+    req.session.save(() => {
+      res.redirect("/dashboard");
+    });
   } catch (err) {
-    res.status(500).json(err);
+    console.error("Error during login:", err);
+    res.status(500).json({ error: err.message || "Server error" });
   }
 });
 
 // Logout
 router.post("/logout", (req, res) => {
+  console.log("Logout route accessed");
+  console.log("Session data:", req.session);
+
   if (req.session.loggedIn) {
     req.session.destroy(() => {
-      res.status(204).end();
+      console.log("Session destroyed, redirecting to homepage");
+      res.redirect("/");
     });
   } else {
+    console.log("Not recognized as logged in.");
     res.status(404).end();
   }
 });
-
 module.exports = router;

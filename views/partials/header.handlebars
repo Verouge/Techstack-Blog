@@ -1,0 +1,23 @@
+<header class="bg-blue-600 text-white py-4">
+    <div class="container mx-auto">
+        <div class="flex justify-between items-center">
+            <div class="text-2xl font-bold">
+                Tech Blog
+            </div>
+            <nav class="space-x-4">
+                <a href="/" class="hover:text-blue-300">Home</a>
+                {{#if loggedIn}}
+                <a href="/dashboard" class="hover:text-blue-300">Dashboard</a>
+                <!-- Use a form to send a POST request on logout -->
+                <form action="/api/logout" method="POST" class="inline">
+                    <button type="submit" class="text-white hover:text-blue-300 bg-transparent border-none">Logout</button>
+                </form>
+
+                {{else}}
+                <a href="/login" class="hover:text-blue-300">Login</a>
+                <a href="/signup" class="hover:text-blue-300">Signup</a>
+                {{/if}}
+            </nav>
+        </div>
+    </div>
+</header>
