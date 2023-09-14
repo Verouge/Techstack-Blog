@@ -2,6 +2,7 @@
     <h2 class="text-2xl font-bold">Edit Post</h2>
 
     <form action="/api/posts/edit/{{post.id}}?_method=PUT" method="POST" class="mt-4">
+        <!-- Use ?_method=PUT in the action URL to indicate a PUT request -->
         <div class="mb-4">
             <label for="title" class="block text-gray-700 font-bold mb-2">Title:</label>
             <input type="text" id="title" name="title" value="{{post.title}}"

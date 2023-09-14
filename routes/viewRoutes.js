@@ -45,7 +45,7 @@ router.get("/dashboard/post/:id", loggedIn, async (req, res) => {
 
     const post = postData.get({ plain: true });
 
-    res.render("postdetails", { post });
+    res.render("editpost", { post });
   } catch (err) {
     res.status(500).json(err);
   }
